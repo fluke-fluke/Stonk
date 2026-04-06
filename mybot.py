@@ -180,9 +180,9 @@ async def play_next_song(voice_client, guild_id, channel):
 
         try:
             source = discord.FFmpegOpusAudio(
-                audio_url,
-                **ffmpeg_options,
-                executable="bin\\ffmpeg\\ffmpeg.exe"
+    audio_url,
+    **ffmpeg_options
+)
             )
         except Exception as e:
             await channel.send(f"เกิดข้อผิดพลาดในการโหลดเพลง: {e}")
