@@ -16,7 +16,9 @@ SONG_QUEUES = {}
 def get_cookies_file():
     cookies_content = os.getenv("YOUTUBE_COOKIES")
     if not cookies_content:
+        print("❌ ไม่พบ YOUTUBE_COOKIES environment variable")
         return None
+    print(f"✅ พบ YOUTUBE_COOKIES ขนาด {len(cookies_content)} ตัวอักษร")
     tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False)
     tmp.write(cookies_content)
     tmp.close()
