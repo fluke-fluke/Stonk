@@ -183,7 +183,6 @@ async def play_next_song(voice_client, guild_id, channel):
     audio_url,
     **ffmpeg_options
 )
-            )
         except Exception as e:
             await channel.send(f"เกิดข้อผิดพลาดในการโหลดเพลง: {e}")
             asyncio.run_coroutine_threadsafe(play_next_song(voice_client, guild_id, channel), bot.loop)
