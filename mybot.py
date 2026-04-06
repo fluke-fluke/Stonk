@@ -53,11 +53,16 @@ async def play(interaction: discord.Interaction, song_query: str):
         return
 
     ydl_options = {
-        "format": "bestaudio[abr<=96]/bestaudio",
-        "noplaylist": True,
-        "youtube_include_dash_manifest": False,
-        "youtube_include_hls_manifest": False,
-    }
+    "format": "bestaudio[abr<=96]/bestaudio",
+    "noplaylist": True,
+    "youtube_include_dash_manifest": False,
+    "youtube_include_hls_manifest": False,
+    "extractor_args": {
+        "youtube": {
+            "player_client": ["web_creator", "tv"],
+        }
+    },
+}
 
     try:
         is_url = song_query.startswith("http://") or song_query.startswith("https://")
