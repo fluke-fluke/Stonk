@@ -65,11 +65,14 @@ async def play(interaction: discord.Interaction, song_query: str):
     cookies_file = get_cookies_file()
 
     ydl_options = {
-        "format": "bestaudio[abr<=96]/bestaudio",
-        "noplaylist": True,
-        "youtube_include_dash_manifest": False,
-        "youtube_include_hls_manifest": False,
-    }
+    "format": "bestaudio/best",
+    "noplaylist": True,
+    "youtube_include_dash_manifest": False,
+    "youtube_include_hls_manifest": False,
+}
+
+if cookies_file:
+    ydl_options["cookiefile"] = cookies_file
 
     if cookies_file:
         ydl_options["cookiefile"] = cookies_file
