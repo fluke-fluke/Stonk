@@ -1,4 +1,5 @@
 import os
+import tempfile
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -11,6 +12,15 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 SONG_QUEUES = {}
+
+def get_cookies_file():
+    cookies_content = os.getenv("YOUTUBE_COOKIES")
+    if not cookies_content:
+        return None
+    tmp = tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False)
+    tmp.write(cookies_content)
+    tmp.close()
+    return tmp.name
 
 async def search_ytdlp_async(query, ydl_opts):
     loop = asyncio.get_running_loop()
@@ -52,17 +62,17 @@ async def play(interaction: discord.Interaction, song_query: str):
         await interaction.followup.send(f"ไม่สามารถเชื่อมต่อ voice channel ได้: {e}")
         return
 
+    cookies_file = get_cookies_file()
+
     ydl_options = {
-    "format": "bestaudio[abr<=96]/bestaudio",
-    "noplaylist": True,
-    "youtube_include_dash_manifest": False,
-    "youtube_include_hls_manifest": False,
-    "extractor_args": {
-        "youtube": {
-            "player_client": ["web_creator", "tv"],
-        }
-    },
-}
+        "format": "bestaudio[abr<=96]/bestaudio",
+        "noplaylist": True,
+        "youtube_include_dash_manifest": False,
+        "youtube_include_hls_manifest": False,
+    }
+
+    if cookies_file:
+        ydl_options["cookiefile"] = cookies_file
 
     try:
         is_url = song_query.startswith("http://") or song_query.startswith("https://")
@@ -92,6 +102,9 @@ async def play(interaction: discord.Interaction, song_query: str):
     except Exception as e:
         await interaction.followup.send(f"เกิดข้อผิดพลาดในการค้นหา: {e}")
         return
+    finally:
+        if cookies_file and os.path.exists(cookies_file):
+            os.unlink(cookies_file)
 
     guild_id = str(interaction.guild_id)
     if SONG_QUEUES.get(guild_id) is None:
@@ -185,9 +198,9 @@ async def play_next_song(voice_client, guild_id, channel):
 
         try:
             source = discord.FFmpegOpusAudio(
-    audio_url,
-    **ffmpeg_options
-)
+                audio_url,
+                **ffmpeg_options
+            )
         except Exception as e:
             await channel.send(f"เกิดข้อผิดพลาดในการโหลดเพลง: {e}")
             asyncio.run_coroutine_threadsafe(play_next_song(voice_client, guild_id, channel), bot.loop)
